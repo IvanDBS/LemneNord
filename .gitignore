@@ -1,0 +1,8 @@
+.env
+*.sqlite3
+log/*
+tmp/*
+backups/*
+.DS_Store
+*.swp
+
