@@ -1,8 +1,8 @@
 FROM ruby:3.2.2
 
-# Установка PostgreSQL клиента
+# Установка PostgreSQL клиента и netcat
 RUN apt-get update -qq && \
-    apt-get install -y postgresql-client
+    apt-get install -y postgresql-client netcat-traditional
 
 # Создание рабочей директории
 WORKDIR /app
