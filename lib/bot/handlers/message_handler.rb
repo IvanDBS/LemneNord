@@ -1,15 +1,32 @@
 # Обработка текстовых сообщений
+require_relative '../services/welcome_service'
+require_relative '../services/admin_services'
+require_relative '../services/order_service'
+require_relative '../keyboards/admin_keyboard'
+require_relative '../keyboards/user_keyboard'
+require_relative '../keyboards/product_keyboard'
+require_relative '../messages/messages'
+
 class MessageHandler
   def initialize(bot, message, admin_ids)
+    puts "Initializing MessageHandler for user #{message.from.id}"
     @bot = bot
     @message = message
     @admin_ids = admin_ids
-    @user = User.find_or_create_by(telegram_id: message.from.id)
+    @user = User.find_or_create_by(telegram_id: message.from.id) do |user|
+      puts "Creating new user with telegram_id: #{message.from.id}"
+      user.language = 'ru'  # Set default language to Russian
+      user.status = 'active'
+    end
+    puts "User found/created: #{@user.inspect}"
   end
 
   def handle
+    puts "Handling message: '#{@message.text}' from user #{@message.from.id}"
+    
     # Проверяем новых участников в канале
     if @message.new_chat_members&.any?
+      puts "New chat members detected"
       return WelcomeService.handle_new_member(@bot, @message)
     end
 
@@ -21,18 +38,26 @@ class MessageHandler
   private
 
   def handle_start
+    puts "Handling /start command for user #{@message.from.id}"
     @user.update(status: 'active')
+    puts "Updated user status to active"
     
     # Проверяем, является ли пользователь админом
     if @admin_ids.include?(@message.from.id)
+      puts "User is admin, showing admin menu"
       AdminKeyboard.show_menu(@bot, @message)
     else
+      puts "User is not admin, showing language selection"
       @bot.api.send_message(
         chat_id: @message.chat.id,
         text: Messages::MESSAGES['ru'][:welcome],
         reply_markup: UserKeyboard.language_selection
       )
     end
+  rescue => e
+    puts "Error in handle_start: #{e.message}"
+    puts e.backtrace
+    raise e
   end
 
   def handle_admin_message
