@@ -9,15 +9,23 @@ namespace :db do
       puts "Starting database migration..."
       FileUtils.mkdir_p('db')
       
-      # Очищаем схему если она существует
+      # Очищаем схему и старые миграции
       FileUtils.rm_f('db/schema.rb')
       
       ActiveRecord::Base.establish_connection(Config::DATABASE_CONFIG)
-      ActiveRecord::MigrationContext.new(
+      
+      # Проверяем существующие миграции
+      migrator = ActiveRecord::MigrationContext.new(
         "db/migrate/",
         ActiveRecord::SchemaMigration
-      ).migrate
-      puts "Migrations completed successfully."
+      )
+      
+      if migrator.needs_migration?
+        migrator.migrate
+        puts "Migrations completed successfully."
+      else
+        puts "No pending migrations."
+      end
     rescue => e
       puts "Migration failed: #{e.message}"
       puts e.backtrace
