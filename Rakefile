@@ -9,16 +9,16 @@ namespace :db do
       puts "Starting database migration..."
       FileUtils.mkdir_p('db')
       
-      # Очищаем схему
-      FileUtils.rm_f('db/schema.rb')
-      
       ActiveRecord::Base.establish_connection(Config::DATABASE_CONFIG)
       
-      # Сбрасываем таблицу schema_migrations
-      ActiveRecord::Base.connection.execute('DROP TABLE IF EXISTS schema_migrations')
-      ActiveRecord::Base.connection.execute('DROP TABLE IF EXISTS ar_internal_metadata')
-      
-      puts "Dropped old migration tables"
+      # Удаляем все таблицы
+      conn = ActiveRecord::Base.connection
+      tables = conn.tables
+      tables.each do |table|
+        puts "Dropping table: #{table}"
+        conn.drop_table(table, force: :cascade)
+      end
+      puts "All tables dropped"
       
       # Запускаем миграции
       migrator = ActiveRecord::MigrationContext.new(
