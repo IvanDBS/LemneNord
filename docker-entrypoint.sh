@@ -1,12 +1,13 @@
 #!/bin/bash
 set -e
 
-until PGPASSWORD=$PGPASSWORD psql -h "$PGHOST" -U "$PGUSER" -d "$PGDATABASE" -c '\q'; do
-  echo "Postgres is unavailable - sleeping"
-  sleep 1
+echo "Waiting for PostgreSQL..."
+until PGPASSWORD=$PGPASSWORD psql "postgresql://$PGUSER@$PGHOST:$PGPORT/$PGDATABASE" -c '\q' 2>/dev/null; do
+  echo "PostgreSQL is unavailable - sleeping"
+  sleep 2
 done
 
-echo "Postgres is up - executing migrations"
+echo "PostgreSQL is up - executing migrations"
 bundle exec rake db:migrate
 
 echo "Starting bot"
