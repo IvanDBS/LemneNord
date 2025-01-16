@@ -1,7 +1,8 @@
 FROM ruby:3.2.2
 
-# Установка необходимых зависимостей
-RUN apt-get update -qq && apt-get install -y sqlite3 libsqlite3-dev
+# Установка PostgreSQL клиента
+RUN apt-get update -qq && \
+    apt-get install -y postgresql-client
 
 # Создание рабочей директории
 WORKDIR /app
