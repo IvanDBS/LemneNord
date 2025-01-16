@@ -8,6 +8,10 @@ namespace :db do
     begin
       puts "Starting database migration..."
       FileUtils.mkdir_p('db')
+      
+      # Очищаем схему если она существует
+      FileUtils.rm_f('db/schema.rb')
+      
       ActiveRecord::Base.establish_connection(Config::DATABASE_CONFIG)
       ActiveRecord::MigrationContext.new(
         "db/migrate/",
