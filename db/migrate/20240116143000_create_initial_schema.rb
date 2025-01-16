@@ -1,4 +1,4 @@
-class CreateInitialSchema < ActiveRecord::Migration[7.0]
+class CreateInitialSchemaV1 < ActiveRecord::Migration[7.0]
   def change
     create_table :users do |t|
       t.bigint :telegram_id, null: false
