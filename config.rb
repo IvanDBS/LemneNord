@@ -14,12 +14,12 @@ module Config
   # ID канала
   CHANNEL_ID = ENV['TELEGRAM_CHANNEL_ID'].to_i
 
-  # Конфигурация базы данных
+  # Конфигурация базы данных с значениями по умолчанию
   DATABASE_CONFIG = {
-    adapter: ENV['DB_ADAPTER'],
-    database: ENV['DB_NAME'],
-    pool: ENV['DB_POOL'].to_i,
-    timeout: ENV['DB_TIMEOUT'].to_i,
+    adapter: ENV['DB_ADAPTER'] || 'sqlite3',
+    database: ENV['DB_NAME'] || 'db/bot.sqlite3',
+    pool: (ENV['DB_POOL'] || 10).to_i,
+    timeout: (ENV['DB_TIMEOUT'] || 3000).to_i,
     checkout_timeout: 3
   }.freeze
 
