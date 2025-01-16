@@ -19,4 +19,4 @@ RUN mkdir -p db log tmp backups && \
     chmod -R 777 db log tmp backups
 
 # Ждем доступности PostgreSQL и затем запускаем миграции и бот
-CMD wait-for-it ${PGHOST}:${PGPORT} -t 60 -- bundle exec rake db:migrate && bundle exec ruby main.rb 
+CMD wait-for-it --host=${PGHOST} --port=${PGPORT} --timeout=60 --strict -- bundle exec rake db:migrate && bundle exec ruby main.rb 
