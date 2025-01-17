@@ -1,14 +1,21 @@
 module AdminServices
   class << self
     def show_statistics(bot, message)
-      stats = Rails.cache.fetch("admin_stats", expires_in: 5.minutes) do
-        {
-          total_users: User.count,
-          total_orders: Application.count,
-          pending_orders: Application.where(status: 'pending').count,
-          approved_orders: Application.where(status: 'approved').count,
-          rejected_orders: Application.where(status: 'rejected').count
-        }
+      stats = nil
+      RedisConfig::REDIS.with do |redis|
+        stats = redis.get("admin_stats")
+        if stats.nil?
+          stats = {
+            total_users: User.count,
+            total_orders: Application.count,
+            pending_orders: Application.where(status: 'pending').count,
+            approved_orders: Application.where(status: 'approved').count,
+            rejected_orders: Application.where(status: 'rejected').count
+          }
+          redis.set("admin_stats", stats.to_json, ex: 300) # expires in 5 minutes
+        else
+          stats = JSON.parse(stats, symbolize_names: true)
+        end
       end
 
       text = generate_stats_text(stats)
