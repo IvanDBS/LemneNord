@@ -52,11 +52,11 @@ GEM
     multipart-post (2.4.0)
     net-http (0.4.1)
       uri
-    pg (1.5.4)
     raabro (1.4.0)
     rake (13.2.1)
     rufus-scheduler (3.9.2)
       fugit (~> 1.1, >= 1.11.1)
+    sqlite3 (1.7.3-x86_64-darwin)
     telegram-bot-ruby (2.0.0)
       dry-struct (~> 1.6)
       faraday (~> 2.0)
@@ -74,9 +74,9 @@ DEPENDENCIES
   activerecord
   activesupport
   dotenv
-  pg
   rake
   rufus-scheduler
+  sqlite3
   telegram-bot-ruby
 
 BUNDLED WITH
