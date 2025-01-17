@@ -20,15 +20,18 @@ module Config
     if ENV['DATABASE_URL']
       # Парсим URL для проверки
       uri = URI.parse(ENV['DATABASE_URL'])
-      puts "Using database URL: #{uri.scheme}://#{uri.host}:#{uri.port}/#{uri.path}"
+      puts "Using database URL: #{uri.scheme}://#{uri.host}:#{uri.port}#{uri.path}"
       ENV['DATABASE_URL']
     else
       # Проверяем наличие необходимых переменных
-      raise "Missing PGHOST" unless ENV['PGHOST']
-      raise "Missing PGPORT" unless ENV['PGPORT']
-      raise "Missing PGDATABASE" unless ENV['PGDATABASE']
+      required_vars = %w[PGHOST PGPORT PGDATABASE PGUSER PGPASSWORD]
+      missing_vars = required_vars.select { |var| ENV[var].nil? }
       
-      {
+      if missing_vars.any?
+        raise "Missing required PostgreSQL variables: #{missing_vars.join(', ')}"
+      end
+      
+      config = {
         adapter: 'postgresql',
         host: ENV['PGHOST'],
         database: ENV['PGDATABASE'],
@@ -38,6 +41,9 @@ module Config
         pool: ENV.fetch('DB_POOL', 10).to_i,
         timeout: ENV.fetch('DB_TIMEOUT', 3000).to_i
       }
+      
+      puts "Using direct PostgreSQL connection to #{config[:host]}:#{config[:port]}/#{config[:database]}"
+      config
     end
   end.freeze
 

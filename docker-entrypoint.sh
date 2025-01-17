@@ -1,12 +1,19 @@
 #!/bin/bash
 set -e
 
-# Ждем доступности PostgreSQL
-until nc -z -v -w30 $PGHOST $PGPORT
+echo "PostgreSQL connection info:"
+echo "Host: $PGHOST"
+echo "Port: $PGPORT"
+echo "Database: $PGDATABASE"
+echo "User: $PGUSER"
+
+# Проверяем и ждем доступности PostgreSQL
+until PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE -c '\q' 2>/dev/null
 do
   echo "Waiting for PostgreSQL..."
-  sleep 1
+  sleep 2
 done
+
 echo "PostgreSQL is up - executing migrations"
 
 # Запускаем миграции
