@@ -27,18 +27,24 @@ namespace :db do
 
   desc "Create the database"
   task :create => :environment do
-    ActiveRecord::Base.establish_connection(Config::DATABASE_CONFIG.merge('database' => 'postgres'))
-    ActiveRecord::Base.connection.create_database(Config::DATABASE_CONFIG['database'])
-  rescue ActiveRecord::DatabaseAlreadyExists
-    puts "Database already exists"
+    begin
+      connection_config = Config::DATABASE_CONFIG.merge('database' => 'postgres')
+      ActiveRecord::Base.establish_connection(connection_config)
+      ActiveRecord::Base.connection.create_database(Config::DATABASE_CONFIG['database'])
+    rescue ActiveRecord::DatabaseAlreadyExists
+      puts "Database already exists"
+    end
   end
 
   desc "Drop the database"
   task :drop => :environment do
-    ActiveRecord::Base.establish_connection(Config::DATABASE_CONFIG.merge('database' => 'postgres'))
-    ActiveRecord::Base.connection.drop_database(Config::DATABASE_CONFIG['database'])
-  rescue ActiveRecord::DatabaseDoesNotExist
-    puts "Database does not exist"
+    begin
+      connection_config = Config::DATABASE_CONFIG.merge('database' => 'postgres')
+      ActiveRecord::Base.establish_connection(connection_config)
+      ActiveRecord::Base.connection.drop_database(Config::DATABASE_CONFIG['database'])
+    rescue ActiveRecord::DatabaseDoesNotExist
+      puts "Database does not exist"
+    end
   end
 end
 
