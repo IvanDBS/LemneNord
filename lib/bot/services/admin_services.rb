@@ -1,32 +1,25 @@
 module AdminServices
   class << self
     def show_statistics(bot, message)
-      stats = nil
-      RedisConfig::REDIS.with do |redis|
-        stats = redis.get("admin_stats")
-        if stats.nil?
-          stats = {
-            total_users: User.count,
-            total_orders: Application.count,
-            pending_orders: Application.where(status: 'pending').count,
-            approved_orders: Application.where(status: 'approved').count,
-            rejected_orders: Application.where(status: 'rejected').count
-          }
-          redis.set("admin_stats", stats.to_json, ex: 300) # expires in 5 minutes
-        else
-          stats = JSON.parse(stats, symbolize_names: true)
-        end
-      end
+      begin
+        stats = {
+          total_users: User.count,
+          total_orders: Application.count,
+          pending_orders: Application.where(status: 'pending').count,
+          approved_orders: Application.where(status: 'approved').count,
+          rejected_orders: Application.where(status: 'rejected').count
+        }
 
-      text = generate_stats_text(stats)
-      
-      bot.api.send_message(
-        chat_id: message.chat.id,
-        text: text,
-        reply_markup: AdminKeyboard.menu
-      )
-    rescue => e
-      ErrorHandler.handle(bot, e, message.chat.id)
+        text = generate_stats_text(stats)
+        
+        bot.api.send_message(
+          chat_id: message.chat.id,
+          text: text,
+          reply_markup: AdminKeyboard.menu
+        )
+      rescue => e
+        ErrorHandler.handle(bot, e, message.chat.id)
+      end
     end
 
     def show_filtered_orders(bot, message, status)
